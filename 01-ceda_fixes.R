@@ -8,11 +8,11 @@
 
 ## Preamble --------------------------------------------------------------------
 library(tidyverse)
-
+library(data.table)
 
 ## Read data -------------------------------------------------------------------
 
-ceda <- read_rds("ceda_allcandidates_1995-2021.rds")
+ceda <- readRDS("./ceda_allcandidates_1995-2021.rds")
 # merge two raceid vars:
 ceda <- ceda %>%
   mutate(race_id = coalesce(race_id,raceid))
@@ -451,5 +451,5 @@ ceda <- bind_rows(ceda,mariposa06_add)
 
 
 ## Output data ----------------------
-# write_csv(ceda,"ceda_allcandidates_1995-2020_fixed.csv")
-write_rds(ceda,"ceda_allcandidates_1995-2021_fixed.rds",compress = "gz")
+#write_csv(ceda,"ceda_allcandidates_1995-2021_fixed.csv")
+saveRDS(ceda,"ceda_allcandidates_1995-2021_fixed.rds")

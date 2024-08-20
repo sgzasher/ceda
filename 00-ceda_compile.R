@@ -4,59 +4,13 @@
 ## ------------ ##
 #### Preamble ####
 ## ------------ ##
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 library(tidyverse)
 library(readr)
 library(janitor)
 library(glue)
 library(readxl)
-
-## -------------- ##
-#### Read files ####
-## -------------- ##
-
-# ## version using compiled file from Valory Messier @ CSU Sacramento (1995-2015)
-# files <- list.files(".",pattern="CEDA\\d{4}Data")
-# years <- str_extract(files,"\\d{4}") %>% as.numeric()
-# files <- files[years > 2015] # only newer years
-# 
-# ceda_all <- NULL
-# 
-# ## read compiled file 1995-2015:
-# ceda_all <- read_excel("All Years Candidates 1995-2015.xlsx",guess_max = 30000) %>% # have to set it for this to avoid creating NAs in numeric cols
-#   clean_names()
-# 
-# ## Fixing errors:
-# ceda_all <- filter(ceda_all, YEAR != "YEAR") # remove errant header row
-# 
-# # CSD/PLACE columns switched in 2011, fixing:
-# table(ceda_all$YEAR[which(ceda_all$CSD !="0" & ceda_all$CSD !="1")]) 
-# ceda_all <- ceda_all %>%
-#   mutate(CSD_2 = ifelse(YEAR==2011,PLACE,CSD),
-#          PLACE_2 = ifelse(YEAR==2011,CSD,PLACE),
-#          CSD = CSD_2,
-#          PLACE = PLACE_2
-#   ) 
-# table(ceda_all$CSD) # all 0s and 1s now
-# 
-# ceda_all <- ceda_all %>%
-#   mutate(RECODE_OFFNAME = toupper(RECODE_OFFNAME))
-# 
-# ## some office names need better grouping:
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "DIRECTOR, CSD"] <- "CSD/CSA DIRECTOR"
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "OTHER CITY"] <- "OTHER CITY OFFICE"
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "OTHER CITY OFFICES"] <- "OTHER CITY OFFICE"
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "OTHER COUNTY"] <- "OTHER COUNTY OFFICE"
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "OTHER COUNTY OFFICES"] <- "OTHER COUNTY OFFICE"
-# ceda_all$RECODE_OFFNAME[ceda_all$RECODE_OFFNAME == "SCHOOL BOARD MEMBER"] <- "SCHOOL BOARD"
-# table(ceda_all$RECODE_OFFNAME) # better now
-# 
-# # fixing elected, whcih should only be 1/2/3
-# table(ceda_all$elected)
-# table(ceda_all$YEAR[which(ceda_all$elected !="1" & ceda_all$elected !="2" & ceda_all$elected !="3")]) # just 2011 and 2012
-# View(ceda_all %>% filter(YEAR==2011)) # looks like elected, runoff, checkrunoff shifted left into multi_raceid column in 2011
-# View(ceda_all %>% filter(YEAR==2012)) # looks like elected and RVOTES columns switched in 2012
-# 
-# ## This is a mess - better to just compile myself
+library(skimr)
 
 ## -------------------------------- ##
 #### Compiling all years by hand: ####
@@ -137,11 +91,6 @@ ceda_all$incumb[ceda_all$incumb == "No"] <- "N"
 ceda_all$term[ceda_all$term == "FUll"] <- "Full"
 
 
-# year missing in all 1995 elecs:
-# ceda_all %>% filter(is.na(year)) %>% View()
-# summary(ceda_all$date[is.na(ceda_all$year)])
-# ceda_all$year[is.na(ceda_all$year)] <- 1995
-
 ## add month variable:
 ceda_all <- ceda_all %>%
   mutate(month = lubridate::month(date))
@@ -204,5 +153,5 @@ ceda_all <- ceda_all %>%
   
 
 #### Output data ####
-# write_csv(ceda_all,"ceda_allcandidates_1995-2020.csv")
-write_rds(ceda_all,"ceda_allcandidates_1995-2021.rds",compress = "gz")
+#write_csv(ceda_all,"ceda_allcandidates_1995-2021.csv")
+saveRDS(ceda_all,"ceda_allcandidates_1995-2021.rds")
